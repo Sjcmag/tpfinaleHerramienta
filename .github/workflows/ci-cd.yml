@@ -10,25 +10,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Checkout Repository
+      uses: actions/checkout@v2
 
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-             distribution: 'adopt'
-             java-version: '11'
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '1.8'
 
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
 
-      - name: Build and Push Docker Image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-          docker build -t sjcmag/appsprint:v1 .
-          docker push sjcmag/appsprint:v1
+  deploy:
+    runs-on: ubuntu-latest
 
-      - name: Deploy with Docker Compose
-        run: |
-          docker-compose -f docker-compose.yml up -d
+    needs: build
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '1.8'
+
+    - name: Build and Push Docker Image
+      run: |
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+        docker build -t sjcmag/appsprint:v1 .
+        docker push sjcmag/appsprint:v1
+
+    - name: Deploy to Docker Compose (if needed)
+      run: docker-compose up -d
