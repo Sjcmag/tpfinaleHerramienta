@@ -11,7 +11,7 @@ services:
 
   # Spring Boot application service
   spring-app:
-    image: your-docker-username/your-app-name:latest
+    image: sjcmag/appsprint:tagname:v1
     ports:
       - "8080:8080"
     depends_on:
