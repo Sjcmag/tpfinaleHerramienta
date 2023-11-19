@@ -1,24 +1,24 @@
 version: '3'
 services:
-  # MySQL service
   mysql:
     image: mysql:latest
+    container_name: mysql-container
+    ports:
+      - "3307:3306"  # Usamos un puerto diferente para evitar conflictos si MySQL ya está instalado localmente
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: ${MYSQL_DB_NAME:test}
-      MYSQL_USER: ${MYSQL_USER:root}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:poli1234}
+      MYSQL_ROOT_PASSWORD: poli1234
+      MYSQL_DATABASE: test
+      MYSQL_USER: root
+      MYSQL_PASSWORD: poli1234
 
-  # Spring Boot application service
   spring-app:
-    image: sjcmag/appsprint:v1
+    image: tu-usuario-docker/tu-app:latest
+    container_name: spring-app-container
     ports:
       - "8080:8080"
     depends_on:
       - mysql
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_DB_NAME: ${MYSQL_DB_NAME:test}
-      MYSQL_USER: ${MYSQL_USER:root}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:poli1234}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/test
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: poli1234
